@@ -1,8 +1,13 @@
 package people
 
+import (
+	"time"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 type People struct {
-	Id int `json:"id"`
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Birthday time.Time `json:"birthday"`
-	Photo string `json:"photo"`
+	Profession string `json:"profession"`
 }

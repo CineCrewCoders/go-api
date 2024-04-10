@@ -2,7 +2,6 @@ package database
 
 import (
     "fmt"
-    "time"
     "context"
 
     "go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +17,7 @@ func Start() (*mongo.Database, context.Context) {
         return Db, Ctx
     }
     uri := "mongodb://localhost:27017"
-    appCtx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+    appCtx := context.Background()
 
     client, connectErr := mongo.Connect(appCtx, options.Client().ApplyURI(uri))
     if connectErr != nil {

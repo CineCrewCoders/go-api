@@ -1,12 +1,11 @@
 package main
 
 import (
-    "fmt"
+    // "fmt"
     "main/models/database"
-    // "time"
-    // "context"
+    "main/handlereq"
 
-    "go.mongodb.org/mongo-driver/bson"
+    // "go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
@@ -14,12 +13,13 @@ func main() {
     
     defer database.Db.Client().Disconnect(database.Ctx)
 
-    collection := database.Db.Collection("people")
+    // collection := database.Db.Collection("people")
 
-    count, err := collection.CountDocuments(database.Ctx, bson.D{})
-    if err != nil {
-        panic(err)
-    }
+    // count, err := collection.CountDocuments(database.Ctx, bson.D{})
+    // if err != nil {
+    //     panic(err)
+    // }
 
-    fmt.Printf("Number of documents in collection: %d\n", count)
+    // fmt.Printf("Number of documents in collection: %d\n", count)
+    handlereq.HandleRequests()
 }
