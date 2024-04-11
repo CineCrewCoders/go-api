@@ -45,26 +45,26 @@ ${mongo_connect} <<EOF
 db.movies.insertMany([
   {
     "name": "Forrest Gump",
-    "genre": "Drama",
-    "release_date": ISODate("1994-07-06"),
+    "genres": ["Drama", "Romance"],
+    "year": 1994,
     "description": "The story of a man with a low IQ who accomplished great things.",
     "director": "Steven Spielberg",
     "cast": ["Tom Hanks", "Meryl Streep"],
-    "rating": { "users_voted": 500, "score": 4.5 }
+    "rating": { "numvotes": 500, "average": 4.5 }
   },
   {
     "name": "Inception",
-    "genre": "Sci-Fi",
-    "release_date": ISODate("2010-07-16"),
+    "genres": ["Action", "Sci-Fi"],
+    "year": 2010,
     "description": "A thief who enters the dreams of others to steal their secrets.",
     "director": "Christopher Nolan",
     "cast": ["Leonardo DiCaprio"],
-    "rating": { "users_voted": 400, "score": 4.7 }
+    "rating": { "numvotes": 400, "average": 4.7 }
   },
   {
     "name": "The Shawshank Redemption",
-    "genre": "Drama",
-    "release_date": ISODate("1994-10-14"),
+    "genres": ["Drama"],
+    "year": 1994,
     "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
     "director": "Steven Spielberg",
     "cast": ["Tom Hanks", "Morgan Freeman"],
@@ -72,21 +72,21 @@ db.movies.insertMany([
   },
   {
     "name": "Fight Club",
-    "genre": "Drama",
-    "release_date": ISODate("1999-10-15"),
+    "genres": ["Drama", "Thriller"],
+    "year": 1999,
     "description": "An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much, much more.",
     "director": "Christopher Nolan",
     "cast": ["Brad Pitt", "Edward Norton"],
-    "rating": { "users_voted": 550, "score": 4.6 }
+    "rating": { "numvotes": 550, "average": 4.6 }
   },
   {
     "name": "The Dark Knight",
-    "genre": "Action",
-    "release_date": ISODate("2008-07-18"),
+    "genres": ["Action", "Crime", "Drama"],
+    "year": 2008,
     "description": "When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.",
     "director": "Christopher Nolan",
     "cast": ["Christian Bale", "Heath Ledger"],
-    "rating": { "users_voted": 600, "score": 4.9 }
+    "rating": { "numvotes": 600, "average": 4.9 }
   }
 ])
 EOF
