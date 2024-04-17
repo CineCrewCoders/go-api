@@ -5,104 +5,65 @@ import (
 	"log"
 	"main/models/database"
 	"main/models/movies"
-	"main/models/people"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strings"
 )
 
-func GetMovie(c *gin.Context) string {
-	collection := database.Db.Collection("movies")
-	
-	id := c.Param("id")
-	objID, err := primitive.ObjectIDFromHex(id)
-	cursor, err := collection.Find(database.Ctx, bson.D{{"_id", objID}})
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var movie movies.Movie
-	for cursor.Next(database.Ctx) {
-		var movieDb movies.MovieDb
-		cursor.Decode(&movieDb)
-		var director people.People
-		director = GetPerson(movieDb.Director)
-		var cast []people.People
-		for _, actor := range movieDb.Cast {
-			cast = append(cast, GetPerson(actor))
-		}
-		movie = movies.Movie{
-			ID: movieDb.ID,
-			Name: movieDb.Name,
-			Year: movieDb.Year,
-			Genres: movieDb.Genres,
-			Cast: cast,
-			Director: director,
-			Description: movieDb.Description,
-			Rating: movieDb.Rating,
-		}
-	}
-
-	movieJson, err := json.Marshal(movie)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return string(movieJson)
-}
-
-func GetPerson(name string) people.People {
-	collection := database.Db.Collection("people")
-	
-	cursor, err := collection.Find(database.Ctx, bson.D{{"name", name}})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var person people.People
-	for cursor.Next(database.Ctx) {
-		cursor.Decode(&person)
-	}
-
-	return person
-}
-
 func GetMovies() string {
+	moviesSlice := []movies.Movie{}
 	collection := database.Db.Collection("movies")
-	
-	cursor, err := collection.Find(database.Ctx, bson.D{})
+	cursor, err := collection.Find(database.Ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var moviesArr []movies.Movie
+	defer cursor.Close(database.Ctx)
 	for cursor.Next(database.Ctx) {
-		var movie movies.MovieDb
-		cursor.Decode(&movie)
-		var director people.People
-		director = GetPerson(movie.Director)
-		var cast []people.People
-		for _, actor := range movie.Cast {
-			cast = append(cast, GetPerson(actor))
-		}
-		moviesArr = append(moviesArr, movies.Movie{
-			ID: movie.ID,
-			Name: movie.Name,
-			Year: movie.Year,
-			Genres: movie.Genres,
-			Cast: cast,
-			Director: director,
-			Description: movie.Description,
-			Rating: movie.Rating,
+		var myMovie movies.MovieDb
+		cursor.Decode(&myMovie)
+		cast := strings.Split(myMovie.Actors, ", ")
+		moviesSlice = append(moviesSlice, movies.Movie{
+			ID: myMovie.ID,
+			Title: myMovie.Title,
+			Year: myMovie.Year,
+			Runtime: myMovie.Runtime,
+			Genres: myMovie.Genres,
+			Actors: cast,
+			Director: myMovie.Director,
+			Plot: myMovie.Plot,
+			PosterURL: myMovie.PosterURL,
+			Rating: myMovie.Rating,
 		})
 	}
-	
-	moviesJson, err := json.Marshal(moviesArr)
+	moviesJSON, _ := json.Marshal(moviesSlice)
+	return string(moviesJSON)
+}
+
+func GetMovie(c *gin.Context) string {
+	id, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	myMovie := movies.MovieDb{}
+	collection := database.Db.Collection("movies")
+	filter := bson.M{"_id": id}
+	err := collection.FindOne(database.Ctx, filter).Decode(&myMovie)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return string(moviesJson)
+	cast := strings.Split(myMovie.Actors, ", ")
+	movie := movies.Movie{
+		ID: myMovie.ID,
+		Title: myMovie.Title,
+		Year: myMovie.Year,
+		Runtime: myMovie.Runtime,
+		Genres: myMovie.Genres,
+		Actors: cast,
+		Director: myMovie.Director,
+		Plot: myMovie.Plot,
+		PosterURL: myMovie.PosterURL,
+		Rating: myMovie.Rating,
+	}
+	movieJSON, _ := json.Marshal(movie)
+	return string(movieJSON)
 }
