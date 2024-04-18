@@ -7,12 +7,16 @@ import (
 	"main/controllers/users"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
 
 type SignUpRequest struct {
     Username string `json:"username"`
-    // Add other fields as needed
+}
+
+type MovieIDRequest struct {
+	MovieID string `json:"movieId"`
 }
 
 func HandleRequests() {
@@ -59,7 +63,41 @@ func HandleRequests() {
 	})
 
 	router.GET("/user", func(c *gin.Context) {
-		c.JSON(200, json.RawMessage(users.GetUserById(c)))
+		c.JSON(200, json.RawMessage(users.GetUserByUsername(c)))
+	})
+
+	router.POST("/user/plan+to+watch", func(c *gin.Context) {
+		if c.Request.Header.Get("Content-Type") != "application/json" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
+			return
+		}
+	
+		username := c.Request.Header.Get("Username")
+		if username == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required in the header"})
+			return
+		}
+	
+		var movieIDRequest MovieIDRequest
+		if err := c.ShouldBindJSON(&movieIDRequest); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
+			return
+		}
+	
+		movieID, err := primitive.ObjectIDFromHex(movieIDRequest.MovieID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movieId format"})
+			return
+		}
+	
+		res := users.AddPlanToWatch(username, movieID)
+		if res == http.StatusOK {
+			c.JSON(http.StatusOK, gin.H{"message": "Movie added to plan to watch list successfully"})
+		} else if res == http.StatusBadRequest {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
 	})
 
 	router.Run("0.0.0.0:6000")

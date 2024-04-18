@@ -55,3 +55,15 @@ func GetUserByUsername(c *gin.Context) string {
 	return string(userJSON)
 }
 
+func AddPlanToWatch(username string, movieId primitive.ObjectID) int {
+	collection := database.Db.Collection("users")
+	filter := bson.M{"username": username}
+	update := bson.M{"$push": bson.M{"planToWatch": movieId}}
+	_, err := collection.UpdateOne(database.Ctx, filter, update)
+	if err != nil {
+		log.Fatal(err)
+		return http.StatusBadRequest
+	}
+	return http.StatusOK
+}
+
