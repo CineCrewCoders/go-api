@@ -31,6 +31,11 @@ db.genres.insertMany([
 ])
 EOF
 
+echo "Create users..."
+${mongo_connect} <<EOF
+db.users.createIndex({ "username": 1 }, { unique: true })
+EOF
+
 echo "Inserting movies..."
 ${mongo_connect} <<EOF
 db.movies.insertMany([

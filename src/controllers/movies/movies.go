@@ -19,7 +19,7 @@ func GetMovies() string {
 	collection := database.Db.Collection("movies")
 	cursor, err := collection.Find(database.Ctx, bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer cursor.Close(database.Ctx)
 	for cursor.Next(database.Ctx) {
@@ -50,7 +50,7 @@ func GetMovieById(c *gin.Context) string {
 	filter := bson.M{"_id": id}
 	err := collection.FindOne(database.Ctx, filter).Decode(&myMovie)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	cast := strings.Split(myMovie.Actors, ", ")
@@ -78,7 +78,7 @@ func SearchMovies(c *gin.Context) string {
 	collection := database.Db.Collection("movies")
 	cursor, err := collection.Find(database.Ctx, bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer cursor.Close(database.Ctx)
 	for cursor.Next(database.Ctx) {
@@ -108,7 +108,7 @@ func SearchMovies(c *gin.Context) string {
 	if minScore != "" {
 		minScoreFloat, err := strconv.ParseFloat(minScore, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		filteredMovies = SearchMoviesByMinScore(minScoreFloat, filteredMovies)
 	}
@@ -122,7 +122,7 @@ func SearchMoviesByTitle(title string, allMovies []movies.Movie) []movies.Movie 
 	collection := database.Db.Collection("movies")
 	cursor, err := collection.Find(database.Ctx, bson.M{"title": primitive.Regex{Pattern: title, Options: "i"}})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer cursor.Close(database.Ctx)
 	for cursor.Next(database.Ctx) {
@@ -152,7 +152,7 @@ func SearchMoviesByGenre(genre []string, allMovies []movies.Movie) []movies.Movi
 	moviesSlice := []movies.Movie{}
 	cursor, err := database.Db.Collection("movies").Find(database.Ctx, genreFilter)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer cursor.Close(database.Ctx)
 	for cursor.Next(database.Ctx) {
@@ -183,14 +183,14 @@ func SearchMoviesByMinScore(minScore float64, allMovies []movies.Movie) []movies
     moviesSlice := []movies.Movie{}
     cursor, err := database.Db.Collection("movies").Find(database.Ctx, bson.M{"rating.average": bson.M{"$gte": minScore}})
     if err != nil {
-        log.Fatal(err)
+        log.Println(err)
     }
     defer cursor.Close(database.Ctx)
 
     for cursor.Next(database.Ctx) {
         var myMovie movies.MovieDb
         if err := cursor.Decode(&myMovie); err != nil {
-            log.Fatal(err)
+            log.Println(err)
         }
 
         if helpers.ContainsMovieID(allMovies, myMovie.ID) {
