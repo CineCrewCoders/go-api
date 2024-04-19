@@ -43,8 +43,9 @@ func GetMovies() string {
 	return string(moviesJSON)
 }
 
-func GetMovieById(c *gin.Context) string {
+func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
 	id, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	log.Println(id)
 	myMovie := movies.MovieDb{}
 	collection := database.Db.Collection("movies")
 	filter := bson.M{"_id": id}
@@ -52,6 +53,8 @@ func GetMovieById(c *gin.Context) string {
 	if err != nil {
 		log.Println(err)
 	}
+	score := helpers.GetMovieScore(userID, id)
+	log.Println(score)
 
 	cast := strings.Split(myMovie.Actors, ", ")
 	movie := movies.Movie{
@@ -65,7 +68,9 @@ func GetMovieById(c *gin.Context) string {
 		Plot: myMovie.Plot,
 		PosterURL: myMovie.PosterURL,
 		Rating: myMovie.Rating,
+		Score: score,
 	}
+	log.Println(movie)
 	movieJSON, _ := json.Marshal(movie)
 	return string(movieJSON)
 }

@@ -29,6 +29,7 @@ type Movie struct {
 	Plot string `json:"plot"`
 	PosterURL string `json:"poster_url"`
 	Rating Rating `json:"rating"`
+	Score float64 `json:"score,omitempty"`
 }
 
 type Rating struct {

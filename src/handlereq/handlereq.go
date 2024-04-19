@@ -34,8 +34,19 @@ func HandleRequests() {
 		c.JSON(200, json.RawMessage(movies.GetMovies()))
 	})
 
-	router.GET("/movie/:id", func(c *gin.Context) {
-		c.JSON(200, json.RawMessage(movies.GetMovieById(c)))
+	router.GET("/movies/:id", func(c *gin.Context) {
+		if c.Request.Header.Get("UserId") == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			return
+		}
+
+		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+			return
+		}
+
+		c.JSON(200, json.RawMessage(movies.GetMovieById(userID, c)))
 	})
 
 	router.GET("/search", func(c *gin.Context) {
@@ -80,8 +91,12 @@ func HandleRequests() {
 		}
 	})
 
-	router.GET("/user", func(c *gin.Context) {
-		c.JSON(200, json.RawMessage(users.GetUserById(c)))
+	// router.GET("/user/:id", func(c *gin.Context) {
+	// 	c.JSON(200, json.RawMessage(users.GetUserById(c)))
+	// })
+
+	router.GET("/user/:username", func(c *gin.Context) {
+		c.JSON(200, json.RawMessage(users.GetUserByUsername(c)))
 	})
 
 	router.POST("/movies/list", func(c *gin.Context) {
@@ -123,12 +138,14 @@ func HandleRequests() {
 			c.JSON(http.StatusOK, gin.H{"message": "Movie added to plan to watch list successfully"})
 		} else if res == http.StatusBadRequest {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+		} else if res == http.StatusNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
 	})
 
-	router.GET("/user/movies/plantowatch", func(c *gin.Context) {
+	router.GET("movies/plantowatch", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -143,7 +160,7 @@ func HandleRequests() {
 		c.JSON(200, json.RawMessage(users.GetUserMovieList(userID, "PlanToWatch")))
 	})
 
-	router.GET("/user/movies/watched", func(c *gin.Context) {
+	router.GET("movies/watched", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -158,7 +175,7 @@ func HandleRequests() {
 		c.JSON(200, json.RawMessage(users.GetUserMovieList(userID, "Watched")))
 	})
 
-	router.POST("/user/movies/rate", func(c *gin.Context) {
+	router.POST("movies/rate", func(c *gin.Context) {
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -192,7 +209,7 @@ func HandleRequests() {
 			return
 		}
 
-		if rated.Score < 0 || rated.Score > 10 {
+		if rated.Score < 1 || rated.Score > 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 0 and 10"})
 			return
 		}
@@ -204,12 +221,14 @@ func HandleRequests() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 		} else if res == http.StatusConflict {
 			c.JSON(http.StatusConflict, gin.H{"error": "Movie already rated"})
+		} else if res == http.StatusNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
 	})
 
-	router.PUT("/user/movies/rate", func(c *gin.Context) {
+	router.PUT("movies/rate", func(c *gin.Context) {
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -243,7 +262,7 @@ func HandleRequests() {
 			return
 		}
 
-		if rated.Score < 0 || rated.Score > 10 {
+		if rated.Score < 1 || rated.Score > 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 0 and 10"})
 			return
 		}
@@ -255,12 +274,14 @@ func HandleRequests() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 		} else if res == http.StatusConflict {
 			c.JSON(http.StatusConflict, gin.H{"error": "Movie not rated yet or the score is the same"})
+		} else if res == http.StatusNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
 	})
 
-	router.DELETE("/user/movies/watched", func(c *gin.Context) {
+	router.DELETE("movies/watched", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -295,7 +316,7 @@ func HandleRequests() {
 		}
 	})
 
-	router.DELETE("/user/movies/plantowatch", func(c *gin.Context) {
+	router.DELETE("movies/plantowatch", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return

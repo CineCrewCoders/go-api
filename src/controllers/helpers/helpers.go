@@ -46,3 +46,19 @@ func IsMovieInList(userIDs primitive.ObjectID, targetID primitive.ObjectID, list
     return false
 
 }
+
+func GetMovieScore(userID primitive.ObjectID, movieID primitive.ObjectID) float64 {
+    var user users.User
+    collection := database.Db.Collection("users")
+    filter := bson.M{"_id": userID}
+    err := collection.FindOne(database.Ctx, filter).Decode(&user)
+    if err != nil {
+        log.Println(err)
+    }
+    for _, rated := range user.Rated {
+        if rated.MovieID == movieID {
+            return rated.Score
+        }
+    }
+    return 0
+}

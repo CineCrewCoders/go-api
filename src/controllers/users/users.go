@@ -33,21 +33,21 @@ func CreateUser(userId primitive.ObjectID, username string) int {
 	return http.StatusOK
 }
 
-func GetUserById(c *gin.Context) string {
-	id, _ := primitive.ObjectIDFromHex(c.Query("id"))
-	myUser := users.User{}
-	collection := database.Db.Collection("users")
-	filter := bson.M{"_id": id}
-	err := collection.FindOne(database.Ctx, filter).Decode(&myUser)
-	if err != nil {
-		log.Println(err)
-	}
-	userJSON, _ := json.Marshal(myUser)
-	return string(userJSON)
-}
+// func GetUserById(c *gin.Context) string {
+// 	id, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// 	myUser := users.User{}
+// 	collection := database.Db.Collection("users")
+// 	filter := bson.M{"_id": id}
+// 	err := collection.FindOne(database.Ctx, filter).Decode(&myUser)
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// 	userJSON, _ := json.Marshal(myUser)
+// 	return string(userJSON)
+// }
 
 func GetUserByUsername(c *gin.Context) string {
-	username := c.Query("username")
+	username := c.Param("username")
 	myUser := users.User{}
 	collection := database.Db.Collection("users")
 	filter := bson.M{"username": username}
@@ -66,6 +66,14 @@ func AddMovieToList(userID primitive.ObjectID, movieId primitive.ObjectID, list 
 		return http.StatusBadRequest
 	}
 
+	collectionMovies := database.Db.Collection("movies")
+	filterMovie := bson.M{"_id": movieId}
+	err := collectionMovies.FindOne(database.Ctx, filterMovie).Err()
+	if err != nil {
+		log.Println(err)
+		return http.StatusNotFound
+	}
+
 	update := bson.M{}
 	if list == "Watched" {
 		update = bson.M{"$push": bson.M{"Watched": movieId}}
@@ -74,7 +82,7 @@ func AddMovieToList(userID primitive.ObjectID, movieId primitive.ObjectID, list 
 	}
 	log.Println(update)
 	log.Println(list)
-	_, err := collection.UpdateOne(database.Ctx, filter, update)
+	_, err = collection.UpdateOne(database.Ctx, filter, update)
 	if err != nil {
 		log.Println(err)
 		return http.StatusBadRequest
@@ -125,9 +133,40 @@ func GetUserMovieList(userID primitive.ObjectID, list string) string {
 }
 
 func RateMovie(userID primitive.ObjectID, movieID primitive.ObjectID, score float64) int {
+	log.Println("score: ", score)
     collection := database.Db.Collection("users")
     filter := bson.M{"_id": userID, "Rated": bson.M{"$not": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}}
     update := bson.M{"$push": bson.M{"Rated": bson.M{"movie_id": movieID, "score": score}}}
+
+	collectionMovies := database.Db.Collection("movies")
+	filterMovie := bson.M{"_id": movieID}
+	err := collectionMovies.FindOne(database.Ctx, filterMovie).Err()
+	if err != nil {
+		log.Println(err)
+		return http.StatusNotFound
+	}
+
+	movie := movies.MovieDb{}
+	err = collectionMovies.FindOne(database.Ctx, filterMovie).Decode(&movie)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError
+	}
+
+	movieRating := movie.Rating
+	if movieRating.Average == 0 {
+		movieRating.NumVotes = 1
+		movieRating.Average = score
+	} else {
+		movieRating.NumVotes += 1
+		movieRating.Average = (movieRating.Average*float64(movieRating.NumVotes-1) + score) / float64(movieRating.NumVotes)
+	}
+	updateMovie := bson.M{"$set": bson.M{"rating": movieRating}}
+	_, err = collectionMovies.UpdateOne(database.Ctx, filterMovie, updateMovie)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError
+	}
     
     result, err := collection.UpdateOne(database.Ctx, filter, update)
     if err != nil {
@@ -144,8 +183,33 @@ func RateMovie(userID primitive.ObjectID, movieID primitive.ObjectID, score floa
 
 func UpdateMovieRating(userID primitive.ObjectID, movieID primitive.ObjectID, score float64) int {
 	collection := database.Db.Collection("users")
+	oldScore := helpers.GetMovieScore(userID, movieID)
 	filter := bson.M{"_id": userID, "Rated": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}
 	update := bson.M{"$set": bson.M{"Rated.$.score": score}}
+
+	collectionMovies := database.Db.Collection("movies")
+	filterMovie := bson.M{"_id": movieID}
+	err := collectionMovies.FindOne(database.Ctx, filterMovie).Err()
+	if err != nil {
+		log.Println(err)
+		return http.StatusNotFound
+	}
+
+	movie := movies.MovieDb{}
+	err = collectionMovies.FindOne(database.Ctx, filterMovie).Decode(&movie)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError
+	}
+
+	movieRating := movie.Rating
+	movieRating.Average = (movieRating.Average*float64(movieRating.NumVotes) - oldScore + score) / float64(movieRating.NumVotes)
+	updateMovie := bson.M{"$set": bson.M{"rating": movieRating}}
+	_, err = collectionMovies.UpdateOne(database.Ctx, filterMovie, updateMovie)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError
+	}
 	
 	result, err := collection.UpdateOne(database.Ctx, filter, update)
 	if err != nil {
