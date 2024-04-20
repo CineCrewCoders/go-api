@@ -145,7 +145,7 @@ func HandleRequests() {
 		}
 	})
 
-	router.GET("movies/plantowatch", func(c *gin.Context) {
+	router.GET("movies/plan_to_watch", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -316,7 +316,7 @@ func HandleRequests() {
 		}
 	})
 
-	router.DELETE("movies/plantowatch", func(c *gin.Context) {
+	router.DELETE("movies/plan_to_watch", func(c *gin.Context) {
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return

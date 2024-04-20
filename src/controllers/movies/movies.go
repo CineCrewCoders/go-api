@@ -54,7 +54,6 @@ func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
 		log.Println(err)
 	}
 	score := helpers.GetMovieScore(userID, id)
-	log.Println(score)
 
 	cast := strings.Split(myMovie.Actors, ", ")
 	movie := movies.Movie{
@@ -70,7 +69,6 @@ func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
 		Rating: myMovie.Rating,
 		Score: score,
 	}
-	log.Println(movie)
 	movieJSON, _ := json.Marshal(movie)
 	return string(movieJSON)
 }
@@ -78,7 +76,7 @@ func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
 func SearchMovies(c *gin.Context) string {
 	title := c.Query("title")
 	genres := c.QueryArray("genres")
-	minScore := c.Query("min_score")
+	minScore := c.Query("min_average")
 	allMovies := []movies.Movie{}
 	collection := database.Db.Collection("movies")
 	cursor, err := collection.Find(database.Ctx, bson.M{})
