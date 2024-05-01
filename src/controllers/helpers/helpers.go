@@ -62,3 +62,15 @@ func GetMovieScore(userID primitive.ObjectID, movieID primitive.ObjectID) float6
     }
     return 0
 }
+
+func UserExists(userID primitive.ObjectID) bool {
+    var user users.User
+    collection := database.Db.Collection("users")
+    filter := bson.M{"_id": userID}
+    err := collection.FindOne(database.Ctx, filter).Decode(&user)
+    if err != nil {
+        log.Println(err)
+        return false
+    }
+    return true
+}

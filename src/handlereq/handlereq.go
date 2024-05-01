@@ -5,6 +5,7 @@ import (
 	"log"
 	"main/controllers/movies"
 	"main/controllers/users"
+	"main/controllers/helpers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
@@ -45,6 +46,11 @@ func HandleRequests() {
 		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+			return
+		}
+		
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
 
@@ -118,6 +124,11 @@ func HandleRequests() {
 			return
 		}
 
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			return
+		}
+
 		var movieIDRequest MovieIDRequest
 		if err := c.ShouldBindJSON(&movieIDRequest); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
@@ -159,6 +170,11 @@ func HandleRequests() {
 			return
 		}
 
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			return
+		}
+
 		c.JSON(200, json.RawMessage(users.GetUserMovieList(userID, "PlanToWatch")))
 	})
 
@@ -171,6 +187,11 @@ func HandleRequests() {
 		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+			return
+		}
+
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
 
@@ -191,6 +212,11 @@ func HandleRequests() {
 		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+			return
+		}
+
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
 
@@ -247,6 +273,11 @@ func HandleRequests() {
 			return
 		}
 
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			return
+		}
+
 		var rated Rated
 		if err := c.ShouldBindJSON(&rated); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
@@ -295,6 +326,11 @@ func HandleRequests() {
 			return
 		}
 
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			return
+		}
+
 		if c.Query("movieId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "MovieId is required"})
 			return
@@ -327,6 +363,11 @@ func HandleRequests() {
 		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+			return
+		}
+
+		if helpers.UserExists(userID) == false {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
 

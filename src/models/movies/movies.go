@@ -1,7 +1,6 @@
 package movies
 
 import (
-	// "main/models/genres"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

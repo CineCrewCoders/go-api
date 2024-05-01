@@ -52,6 +52,9 @@ func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
 	err := collection.FindOne(database.Ctx, filter).Decode(&myMovie)
 	if err != nil {
 		log.Println(err)
+		if err.Error() == "mongo: no documents in result" {
+			return "{\"error\": \"Movie not found\"}"
+		}
 	}
 	score := helpers.GetMovieScore(userID, id)
 

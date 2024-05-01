@@ -1,0 +1,9 @@
+version: "3.1"
+services:
+  go-api:
+    container_name: go-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6000:6000"

@@ -90,3 +90,14 @@ go run .
 	}
 	```
 !!! The UserId must be included in header for the requests that need a logged in user : Key: UserId, Value: 66217079769296d67c049493
+
+#### A movie has the following details:
+- title
+- year
+- runtime
+- genres
+- actors
+- director
+- plot
+- poster
+- average and number of votes
