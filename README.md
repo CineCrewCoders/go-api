@@ -23,19 +23,19 @@ go run .
 ## Endpoints (with postman examples)
 - "/movies" (GET all movies  - **no need to be logged in**)
 	```
-	GET http://localhost:6000/movies
+	GET http://localhost:5678/movies
 	```
 - "/movies/:id" (GET a specific movie - **you have to be logged in**)
 	```
-	GET http://localhost:6000/movies/movieId
+	GET http://localhost:5678/movies/movieId
 	```
 - "/search" (GET a list of movies with any specified combination of this query params: title, min_average, genres - **no need to be logged in**)
 	```
-	GET http://localhost:6000/search?title=the martian&min_score=0.0&genres=Drama&genres=Comedy
+	GET http://localhost:5678/search?title=the martian&min_score=0.0&genres=Drama&genres=Comedy
 	```
 - "/signup" (POST - create a user with specified id (from firebase) and username -  **not logged in**)
 	```
-	POST http://localhost:6000/signup
+	POST http://localhost:5678/signup
 	body:
 	{
 		"userID": "66217079769296d67c049493",
@@ -44,11 +44,11 @@ go run .
 	```
 - "/user/:username" (GET the details for the specified user - **testing only for safety reasons**)
 	```
-	GET http://localhost:6000/user/darlena
+	GET http://localhost:5678/user/darlena
 	```
 - "/movies/list" (POST - add movie to list (ids in body) **you have to be logged in**)
 	```
-	POST http://localhost:6000/movies/list
+	POST http://localhost:5678/movies/list
 	body:
 	{
 		"list": "PlanToWatch",
@@ -57,23 +57,23 @@ go run .
 	```
 - "/movies/plan_to_watch" (GET plan to watch list **you have to be logged in**)
 	```
-	GET http://localhost:6000/movies/plan_to_watch
+	GET http://localhost:5678/movies/plan_to_watch
 	```
 - "/movies/watched" (GET watched list **you have to be logged in**)
 	```
-	GET http://localhost:6000/movies/watched
+	GET http://localhost:5678/movies/watched
 	```
 - "/movies/plan_to_watch" (DELETE movie from plan to watch list (movieId as query param) **you have to be logged in**)
 	```
-	DELETE http://localhost:6000/movies/plan_to_watch?movieId=movieId
+	DELETE http://localhost:5678/movies/plan_to_watch?movieId=movieId
 	```
  - "/movies/watched" (DELETE movie from watched list (movieId as query param) **you have to be logged in**)
 	```
-	DELETE http://localhost:6000/movies/watched?movieId=movieId
+	DELETE http://localhost:5678/movies/watched?movieId=movieId
 	```
 - "/movies/rate" (POST - rate a movie (movieId and grade in body) **you have to be logged in**)
 	```
-	POST http://localhost:6000/movies/rate
+	POST http://localhost:5678/movies/rate
 	body:
 	{
 		"movieId": "6622e243b51d6cd2b75ed745",
@@ -82,7 +82,7 @@ go run .
 	```
 - "/movies/rate" (PUT - modify a grade **you have to be logged in**)
 	```
-	PUT http://localhost:6000/movies/rate
+	PUT http://localhost:5678/movies/rate
 	body:
 	{
 		"movieId": "6622e243b51d6cd2b75ed745",
