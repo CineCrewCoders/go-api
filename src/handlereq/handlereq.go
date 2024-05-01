@@ -7,6 +7,7 @@ import (
 	"main/controllers/users"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
@@ -29,6 +30,7 @@ type Rated struct {
 func HandleRequests() {
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
+	router.Use(cors.Default())
 
 	router.GET("/movies", func(c *gin.Context) {
 		c.JSON(200, json.RawMessage(movies.GetMovies()))
@@ -351,6 +353,7 @@ func HandleRequests() {
 		}
 	})
 
-	router.Run("0.0.0.0:6000")
-	log.Println("Server started on: http://localhost:6000")
+
+	router.Run("0.0.0.0:5678")
+	log.Println("Server started on: http://localhost:5678")
 }
