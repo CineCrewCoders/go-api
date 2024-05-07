@@ -43,13 +43,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 		
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -78,18 +74,15 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(signUpRequest.UserId)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		// userId is string
+		userID := signUpRequest.UserId
 	
 		if signUpRequest.Username == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
 			return
 		}
 
-		res := users.CreateUser(userID, signUpRequest.Username)
+		res := users.CreateUser(userID , signUpRequest.Username)
 		if res == http.StatusOK {
 			c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 		} else if res == http.StatusBadRequest {
@@ -118,13 +111,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -164,13 +153,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -184,13 +169,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -209,13 +190,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -267,13 +244,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -320,13 +293,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}
@@ -360,13 +329,9 @@ func HandleRequests() {
 			return
 		}
 
-		userID, err := primitive.ObjectIDFromHex(c.Request.Header.Get("UserId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
-			return
-		}
+		userID := c.Request.Header.Get("UserId")
 
-		if helpers.UserExists(userID) == false {
+		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 			return
 		}

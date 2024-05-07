@@ -43,7 +43,7 @@ func GetMovies() string {
 	return string(moviesJSON)
 }
 
-func GetMovieById(userID primitive.ObjectID, c *gin.Context) string {
+func GetMovieById(userID string, c *gin.Context) string {
 	id, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	log.Println(id)
 	myMovie := movies.MovieDb{}

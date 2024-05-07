@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func CreateUser(userId primitive.ObjectID, username string) int {
+func CreateUser(userId string, username string) int {
 	user := users.User{
 		ID: userId,
 		Username: username,
@@ -29,7 +29,7 @@ func CreateUser(userId primitive.ObjectID, username string) int {
 		log.Println(err)
 		return http.StatusBadRequest
 	}
-	user.ID = res.InsertedID.(primitive.ObjectID)
+	user.ID = res.InsertedID.(primitive.ObjectID).Hex()
 	return http.StatusOK
 }
 
@@ -59,9 +59,9 @@ func GetUserByUsername(c *gin.Context) string {
 	return string(userJSON)
 }
 
-func AddMovieToList(userID primitive.ObjectID, movieId primitive.ObjectID, list string) int {
+func AddMovieToList(userID string, movieId primitive.ObjectID, list string) int {
 	collection := database.Db.Collection("users")
-	filter := bson.M{"_id": userID}
+	filter := bson.M{"id": userID}
 	if list != "Watched" && list != "PlanToWatch" {
 		return http.StatusBadRequest
 	}
@@ -90,10 +90,10 @@ func AddMovieToList(userID primitive.ObjectID, movieId primitive.ObjectID, list 
 	return http.StatusOK
 }
 
-func GetUserMovieList(userID primitive.ObjectID, list string) string {
+func GetUserMovieList(userID string, list string) string {
 	myUser := users.User{}
 	collection := database.Db.Collection("users")
-	filter := bson.M{"_id": userID}
+	filter := bson.M{"id": userID}
 	err := collection.FindOne(database.Ctx, filter).Decode(&myUser)
 	if err != nil {
 		log.Fatal(err)
@@ -132,10 +132,10 @@ func GetUserMovieList(userID primitive.ObjectID, list string) string {
 	return string(moviesJSON)
 }
 
-func RateMovie(userID primitive.ObjectID, movieID primitive.ObjectID, score float64) int {
+func RateMovie(userID string, movieID primitive.ObjectID, score float64) int {
 	log.Println("score: ", score)
     collection := database.Db.Collection("users")
-    filter := bson.M{"_id": userID, "Rated": bson.M{"$not": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}}
+    filter := bson.M{"id": userID, "Rated": bson.M{"$not": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}}
     update := bson.M{"$push": bson.M{"Rated": bson.M{"movie_id": movieID, "score": score}}}
 
 	collectionMovies := database.Db.Collection("movies")
@@ -181,10 +181,10 @@ func RateMovie(userID primitive.ObjectID, movieID primitive.ObjectID, score floa
     return http.StatusOK
 }
 
-func UpdateMovieRating(userID primitive.ObjectID, movieID primitive.ObjectID, score float64) int {
+func UpdateMovieRating(userID string, movieID primitive.ObjectID, score float64) int {
 	collection := database.Db.Collection("users")
 	oldScore := helpers.GetMovieScore(userID, movieID)
-	filter := bson.M{"_id": userID, "Rated": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}
+	filter := bson.M{"id": userID, "Rated": bson.M{"$elemMatch": bson.M{"movie_id": movieID}}}
 	update := bson.M{"$set": bson.M{"Rated.$.score": score}}
 
 	collectionMovies := database.Db.Collection("movies")
@@ -224,9 +224,9 @@ func UpdateMovieRating(userID primitive.ObjectID, movieID primitive.ObjectID, sc
 	return http.StatusOK
 }
 
-func RemoveMovieFromList(userID primitive.ObjectID, movieID primitive.ObjectID, list string) int {
+func RemoveMovieFromList(userID string, movieID primitive.ObjectID, list string) int {
 	collection := database.Db.Collection("users")
-	filter := bson.M{"_id": userID}
+	filter := bson.M{"id": userID}
 	update := bson.M{}
 	if list == "Watched" {
 		if !helpers.IsMovieInList(userID, movieID, "Watched") {

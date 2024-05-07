@@ -18,11 +18,11 @@ func ContainsMovieID(movies []movies.Movie, targetID primitive.ObjectID) bool {
     return false
 }
 
-func IsMovieInList(userIDs primitive.ObjectID, targetID primitive.ObjectID, list string) bool {
+func IsMovieInList(userIDs string, targetID primitive.ObjectID, list string) bool {
     var movieList []primitive.ObjectID
     var userData users.User
     collection := database.Db.Collection("users")
-    filter := bson.M{"_id": userIDs}
+    filter := bson.M{"id": userIDs}
     err := collection.FindOne(database.Ctx, filter).Decode(&userData)
     if err != nil {
         log.Println(err)
@@ -47,10 +47,10 @@ func IsMovieInList(userIDs primitive.ObjectID, targetID primitive.ObjectID, list
 
 }
 
-func GetMovieScore(userID primitive.ObjectID, movieID primitive.ObjectID) float64 {
+func GetMovieScore(userID string, movieID primitive.ObjectID) float64 {
     var user users.User
     collection := database.Db.Collection("users")
-    filter := bson.M{"_id": userID}
+    filter := bson.M{"id": userID}
     err := collection.FindOne(database.Ctx, filter).Decode(&user)
     if err != nil {
         log.Println(err)
@@ -63,10 +63,10 @@ func GetMovieScore(userID primitive.ObjectID, movieID primitive.ObjectID) float6
     return 0
 }
 
-func UserExists(userID primitive.ObjectID) bool {
+func UserExists(userID string) bool {
     var user users.User
     collection := database.Db.Collection("users")
-    filter := bson.M{"_id": userID}
+    filter := bson.M{"id": userID}
     err := collection.FindOne(database.Ctx, filter).Decode(&user)
     if err != nil {
         log.Println(err)
