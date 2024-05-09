@@ -31,7 +31,12 @@ type Rated struct {
 func HandleRequests() {
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
-	router.Use(cors.Default())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders: []string{"UserId", "Content-Type"},
+	}))
+
 
 	router.GET("/movies", func(c *gin.Context) {
 		c.JSON(200, json.RawMessage(movies.GetMovies()))
