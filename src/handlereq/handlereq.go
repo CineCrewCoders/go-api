@@ -10,8 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
+	"time"
+	
+    "github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var httpDuration = prometheus.NewHistogramVec(
+	prometheus.HistogramOpts{
+		Name: "http_request_duration_seconds",
+		Help: "Duration of HTTP requests in seconds.",
+	},
+	[]string{"method", "endpoint"},
+)
+
+// Register the metric with Prometheus
+func init() {
+	prometheus.MustRegister(httpDuration)
+}
 
 type SignUpRequest struct {
 	UserId string `json:"userId"`
@@ -38,11 +55,19 @@ func HandleRequests() {
 	}))
 
 
+	
+    router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	router.GET("/movies", func(c *gin.Context) {
+		
+		start := time.Now()
 		c.JSON(200, json.RawMessage(movies.GetMovies()))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/movies").Observe(elapsed)
 	})
 
 	router.GET("/movies/:id", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -56,13 +81,19 @@ func HandleRequests() {
 		}
 
 		c.JSON(200, json.RawMessage(movies.GetMovieById(userID, c)))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/movies/:id").Observe(elapsed)
 	})
 
 	router.GET("/search", func(c *gin.Context) {
+		start := time.Now()
 		c.JSON(200, json.RawMessage(movies.SearchMovies(c)))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/search").Observe(elapsed)
 	})
 
 	router.POST("/signup", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "" && c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -95,6 +126,8 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 	})
 
 	// router.GET("/user/:id", func(c *gin.Context) {
@@ -102,10 +135,14 @@ func HandleRequests() {
 	// })
 
 	router.GET("/user/:username", func(c *gin.Context) {
+		start := time.Now()
 		c.JSON(200, json.RawMessage(users.GetUserByUsername(c)))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/user/:username").Observe(elapsed)
 	})
 
 	router.POST("/movies/list", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -150,9 +187,12 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 	})
 
 	router.GET("movies/plan_to_watch", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -166,9 +206,12 @@ func HandleRequests() {
 		}
 
 		c.JSON(200, json.RawMessage(users.GetUserMovieList(userID, "PlanToWatch")))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/movies/plan_to_watch").Observe(elapsed)
 	})
 
 	router.GET("movies/watched", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -182,9 +225,12 @@ func HandleRequests() {
 		}
 
 		c.JSON(200, json.RawMessage(users.GetUserMovieList(userID, "Watched")))
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("GET", "/movies/watched").Observe(elapsed)
 	})
 
 	router.POST("movies/rate", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -236,9 +282,12 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 	})
 
 	router.PUT("movies/rate", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
 			return
@@ -290,9 +339,12 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 	})
 
 	router.DELETE("movies/watched", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -326,9 +378,12 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("DELETE", "/movies/watched").Observe(elapsed)
 	})
 
 	router.DELETE("movies/plan_to_watch", func(c *gin.Context) {
+		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
 			return
@@ -362,6 +417,8 @@ func HandleRequests() {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
+		elapsed := time.Since(start).Seconds()
+		httpDuration.WithLabelValues("DELETE", "/movies/plan_to_watch").Observe(elapsed)
 	})
 
 

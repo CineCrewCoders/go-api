@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  grafana:
+    hostname: grafana
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_SECURITY_ADMIN_USER=student
+    ports:
+      - "5555:3000"
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasource:/etc/grafana/provisioning/datasources
+
+  prometheus:
+    hostname: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"

@@ -7,7 +7,7 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - mongo-data:/var/lib/mongodb:/data/db
+      - mongo-data:/var/lib/mongodb
       - ./init_scripts:/docker-entrypoint-initdb.d
     ports:
       - 27017:27017
