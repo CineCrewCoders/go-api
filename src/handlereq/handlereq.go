@@ -59,10 +59,10 @@ func HandleRequests() {
     router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.GET("/movies", func(c *gin.Context) {
-		
 		start := time.Now()
 		c.JSON(200, json.RawMessage(movies.GetMovies()))
 		elapsed := time.Since(start).Seconds()
+		log.Println(elapsed)
 		httpDuration.WithLabelValues("GET", "/movies").Observe(elapsed)
 	})
 
@@ -70,6 +70,8 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/:id").Observe(elapsed)
 			return
 		}
 
@@ -77,6 +79,8 @@ func HandleRequests() {
 		
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/:id").Observe(elapsed)
 			return
 		}
 
@@ -96,17 +100,23 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "" && c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 			return
 		}
 	
 		var signUpRequest SignUpRequest
 		if err := c.ShouldBindJSON(&signUpRequest); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 			return
 		}
 
 		if signUpRequest.UserId == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 			return
 		}
 
@@ -115,16 +125,24 @@ func HandleRequests() {
 	
 		if signUpRequest.Username == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 			return
 		}
 
 		res := users.CreateUser(userID , signUpRequest.Username)
 		if res == http.StatusOK {
 			c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 		} else if res == http.StatusBadRequest {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate id or username"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
 		}
 		elapsed := time.Since(start).Seconds()
 		httpDuration.WithLabelValues("POST", "/signup").Observe(elapsed)
@@ -150,6 +168,8 @@ func HandleRequests() {
 	
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 			return
 		}
 
@@ -157,29 +177,41 @@ func HandleRequests() {
 
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 			return
 		}
 
 		var movieIDRequest MovieIDRequest
 		if err := c.ShouldBindJSON(&movieIDRequest); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 			return
 		}
 	
 		if movieIDRequest.List == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "List is required"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 			return
 		}
 		log.Println(movieIDRequest.List)
 		movieID, err := primitive.ObjectIDFromHex(movieIDRequest.MovieID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movieId format"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/list").Observe(elapsed)
 			return
 		}
 	
 		res := users.AddMovieToList(userID, movieID, movieIDRequest.List)
 		if res == http.StatusOK {
-			c.JSON(http.StatusOK, gin.H{"message": "Movie added to plan to watch list successfully"})
+			if movieIDRequest.List == "Watched" {
+				c.JSON(http.StatusOK, gin.H{"message": "Movie added to watched list successfully"})
+			} else {
+				c.JSON(http.StatusOK, gin.H{"message": "Movie added to plan to watch list successfully"})
+			}
 		} else if res == http.StatusBadRequest {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
 		} else if res == http.StatusNotFound {
@@ -195,6 +227,8 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/plan_to_watch").Observe(elapsed)
 			return
 		}
 
@@ -202,6 +236,8 @@ func HandleRequests() {
 
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/plan_to_watch").Observe(elapsed)
 			return
 		}
 
@@ -214,6 +250,8 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/watched").Observe(elapsed)
 			return
 		}
 
@@ -221,6 +259,8 @@ func HandleRequests() {
 
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("GET", "/movies/watched").Observe(elapsed)
 			return
 		}
 
@@ -233,11 +273,15 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
@@ -245,28 +289,38 @@ func HandleRequests() {
 
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		var rated Rated
 		if err := c.ShouldBindJSON(&rated); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if rated.MovieID == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "MovieId is required"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		movieID, err := primitive.ObjectIDFromHex(rated.MovieID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movieId format"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if rated.Score < 1 || rated.Score > 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 0 and 10"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
 		}
 
@@ -290,11 +344,15 @@ func HandleRequests() {
 		start := time.Now()
 		if c.Request.Header.Get("Content-Type") != "application/json" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Content-Type header must be application/json"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if c.Request.Header.Get("UserId") == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "UserId is required in the header"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
@@ -302,28 +360,38 @@ func HandleRequests() {
 
 		if !helpers.UserExists(userID) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		var rated Rated
 		if err := c.ShouldBindJSON(&rated); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if rated.MovieID == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "MovieId is required"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		movieID, err := primitive.ObjectIDFromHex(rated.MovieID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movieId format"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 
 		if rated.Score < 1 || rated.Score > 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 0 and 10"})
+			elapsed := time.Since(start).Seconds()
+			httpDuration.WithLabelValues("PUT", "/movies/rate").Observe(elapsed)
 			return
 		}
 

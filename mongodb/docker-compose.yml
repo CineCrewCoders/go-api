@@ -13,5 +13,18 @@ services:
       - 27017:27017
     restart: unless-stopped
 
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASIC_AUTH_USERNAME=admin  # Set your desired username for authentication
+      - ME_CONFIG_BASIC_AUTH_PASSWORD=password  # Set your desired password for authentication
+    ports:
+      - "8081:8081"  # Expose mongo-express on port 8081
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+
 volumes:
   mongo-data:
