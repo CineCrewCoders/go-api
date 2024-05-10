@@ -318,7 +318,7 @@ func HandleRequests() {
 		}
 
 		if rated.Score < 1 || rated.Score > 10 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 0 and 10"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Score must be between 1 and 10"})
 			elapsed := time.Since(start).Seconds()
 			httpDuration.WithLabelValues("POST", "/movies/rate").Observe(elapsed)
 			return
