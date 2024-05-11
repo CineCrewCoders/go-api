@@ -31,7 +31,7 @@ go run .
 	```
 - "/search" (GET a list of movies with any specified combination of this query params: title, min_average, genres - **no need to be logged in**)
 	```
-	GET http://localhost:5678/search?title=the martian&min_score=0.0&genres=Drama&genres=Comedy
+	GET http://localhost:5678/search?title=the martian&min_average=0.0&genres=Drama,Comedy
 	```
 - "/signup" (POST - create a user with specified id (from firebase) and username -  **not logged in**)
 	```
