@@ -2,7 +2,7 @@ FROM golang:alpine as builder
 
 WORKDIR /app
 
-COPY src .
+COPY ./go-api/src .
 
 RUN go mod init main
 

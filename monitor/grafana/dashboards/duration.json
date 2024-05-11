@@ -1,0 +1,75 @@
+{
+    "datasource": {
+        "type": "prometheus",
+        "uid": "ddlb0k31asw74a"
+    },
+    "fieldConfig": {
+        "defaults": {
+            "mappings": [],
+            "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                        "color": "green",
+                        "value": null
+                    },
+                    {
+                        "color": "red",
+                        "value": 80
+                    }
+                ]
+            },
+            "color": {
+                "mode": "continuous-GrYlRd"
+            }
+        },
+        "overrides": []
+    },
+    "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+    },
+    "id": 1,
+    "options": {
+        "reduceOptions": {
+            "values": false,
+            "calcs": [
+                "lastNotNull"
+            ],
+            "fields": ""
+        },
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "color",
+        "namePlacement": "auto",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizWidth": 8,
+        "minVizHeight": 16,
+        "maxVizHeight": 300
+    },
+    "pluginVersion": "10.4.2",
+    "targets": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ddlb0k31asw74a"
+            },
+            "disableTextWrap": false,
+            "editorMode": "builder",
+            "expr": "avg by(endpoint) (histogram_quantile(0.99, http_request_duration_seconds_bucket))",
+            "fullMetaSearch": false,
+            "hide": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A",
+            "useBackend": false
+        }
+    ],
+    "title": "Panel Title",
+    "type": "bargauge"
+}

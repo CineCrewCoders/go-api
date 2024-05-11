@@ -16,7 +16,7 @@ func Start() (*mongo.Database, context.Context) {
     if Db != nil {
         return Db, Ctx
     }
-    uri := "mongodb://localhost:27017"
+    uri := "mongodb://mongodb:27017"
     appCtx := context.Background()
 
     client, connectErr := mongo.Connect(appCtx, options.Client().ApplyURI(uri))
