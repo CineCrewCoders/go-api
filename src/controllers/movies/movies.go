@@ -78,7 +78,11 @@ func GetMovieById(userID string, c *gin.Context) string {
 
 func SearchMovies(c *gin.Context) string {
 	title := c.Query("title")
-	genres := c.QueryArray("genres")
+	genresString := c.Query("genres")
+    var genres []string
+    if genresString != "" {
+        genres = strings.Split(genresString, ",")
+    }
 	minScore := c.Query("min_average")
 	allMovies := []movies.Movie{}
 	collection := database.Db.Collection("movies")
