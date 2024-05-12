@@ -491,5 +491,5 @@ func HandleRequests() {
 
 
 	router.Run("0.0.0.0:5678")
-	log.Println("Server started on: http://localhost:5678")
+	log.Println("Server started on: http://0.0.0.0:5678")
 }

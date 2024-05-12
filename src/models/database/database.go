@@ -16,19 +16,18 @@ func Start() (*mongo.Database, context.Context) {
     if Db != nil {
         return Db, Ctx
     }
-    uri := "mongodb://localhost:27017"
+    uri := "mongodb://mongodb:27017"
     appCtx := context.Background()
+    
 
     client, connectErr := mongo.Connect(appCtx, options.Client().ApplyURI(uri))
     if connectErr != nil {
         panic(connectErr)
-        return nil, nil
     }
 
     pingErr := client.Ping(appCtx, readpref.Primary())
     if pingErr != nil {
         panic(pingErr)
-        return nil, nil
     }
 
     fmt.Println("Connected to MongoDB successfully!")
